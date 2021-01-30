@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARCalc", "ARCalc\ARCalc.csproj", "{96FDB77B-FD2B-48DC-9B42-904CCE3C48FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{96FDB77B-FD2B-48DC-9B42-904CCE3C48FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96FDB77B-FD2B-48DC-9B42-904CCE3C48FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96FDB77B-FD2B-48DC-9B42-904CCE3C48FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96FDB77B-FD2B-48DC-9B42-904CCE3C48FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C32444E0-26E1-427D-A95C-E85D1B50CA20}
+	EndGlobalSection
+EndGlobal

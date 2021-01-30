@@ -1,0 +1,7 @@
+*.suo
+*.user
+_ReSharper.*
+ARCalc/bin/
+ARCalc/obj/
+ARCalc/packages/
+/.vs*
