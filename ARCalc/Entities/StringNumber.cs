@@ -117,9 +117,9 @@ namespace ARCalc.Entities
                     return bigNum[z_idx..];
                 return bigNum[z_idx] + "." + bigNum[z_idx2..];
             }
-            else if(z_idx - p < idx)/* move over dot + 1 */
+            else if(z_idx - p < idx)/* move over dot + 1  => DONE: FIX ERROR! */
             {
-                int left_zeros = z_idx - idx; /* zeros which are left from first non-zero digit */
+                int left_zeros = z_idx - idx - 1;   /* zeros which are left from first non-zero digit */
                 idx = z_idx; /* start number from non-zero digit */
                 
                 int l = bigNum[idx..].Length;/* significant digits */
@@ -129,15 +129,17 @@ namespace ARCalc.Entities
                 //0.00123 [4] => 12.3
                 if (right_zeros >= 0)
                     return bigNum[idx..] + new string('0', right_zeros);
-                else {
-                    int per_idx = bigNum.Length + right_zeros;/* we must move [rigt_zeros] digits after the period */
+                else { //0.00213 [4] => 2.13 
+                    int per_idx = bigNum.Length + right_zeros + 1;/* we must move [rigt_zeros] digits after the period */
+                    if (per_idx == bigNum.Length)
+                        return bigNum[idx..];
                     return bigNum[idx..per_idx] + "." + bigNum[per_idx..];
                 }
             }
             else
             {
                 //0.0021 [1] => 0.021
-                int left_zeros = z_idx - idx; /* zeros from left side of the first non-zero digit */
+                int left_zeros = z_idx - idx - 1; /* zeros from left side of the first non-zero digit */
                 int right_zeros = left_zeros - p;/* zeros between '0.' and first non-zero digit */
                 return "0." + new string('0', right_zeros) + bigNum[z_idx..];
             }

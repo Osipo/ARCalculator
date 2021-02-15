@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ARCalc.Resources;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,9 +28,11 @@ namespace ARCalc
             InitializeComponent();
             this.KeyDown += KeyBoard_Click;
             _manager = new CalcManager(this);
+            
         }
         private void KeyBoard_Click(object sender, KeyEventArgs args)
         {
+            
 
             Key i = args.Key;
             char valid_ch = i switch
@@ -82,6 +85,7 @@ namespace ARCalc
             }
         }
 
+        /*
         private void INP_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             int pos,  sel;
@@ -89,9 +93,9 @@ namespace ARCalc
             {
                 pos = tb.SelectionStart;
                 sel = tb.SelectionLength;
-                _manager?.Manage(tb.Text);/* MUST ALSO PROCESS POSITION */
+                _manager?.Manage(tb.Text); // MUST ALSO PROCESS POSITION
                 e.Handled = true;
             }
-        }
+        }*/
     }
 }

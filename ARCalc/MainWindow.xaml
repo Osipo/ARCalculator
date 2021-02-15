@@ -11,16 +11,19 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.ColumnSpan="1" Grid.Row="0">
+        <StackPanel x:Name="CONTENT">
             <DockPanel>
                 <Menu DockPanel.Dock="Top">
                     <MenuItem Header="_File">
-                        <MenuItem Header="_New"></MenuItem>
+                        <MenuItem Header="_New">
+                            <MenuItem Header="Cuty"></MenuItem>
+                        </MenuItem>
+                        
                         <Separator/>
                         <MenuItem Header="_Exit"></MenuItem>
                     </MenuItem>
@@ -32,15 +35,23 @@
                     <MenuItem Header="_Help"></MenuItem>
                 </Menu>
             </DockPanel>
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <ScrollViewer  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <StackPanel>
-                    <TextBlock x:Name="EXPR" Text="" FontSize="16" MinHeight="30" FlowDirection="LeftToRight" TextAlignment="Right" VerticalAlignment="Top" />
-                    <TextBox x:Name="INP" Text="0" FontSize="20"
-                             VerticalContentAlignment="Bottom" MinHeight="30" FlowDirection="LeftToRight" TextAlignment="Right"
-                             PreviewTextInput="INP_PreviewTextInput"/>
+                    <TextBlock x:Name="EXPR" Text="" FontSize="16" MinHeight="30" FlowDirection="LeftToRight"
+                               TextAlignment="Right" VerticalAlignment="Top" Style="{DynamicResource TextBlock_Normal}" />
+                    <!--<TextBlock x:Name="INP" Text="0" FontSize="20"
+                             VerticalAlignment="Bottom" MinHeight="30" FlowDirection="LeftToRight" TextAlignment="Right"
+                    />-->
                 </StackPanel>
             </ScrollViewer>
-            <Grid x:Name="calc_btns">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <Border BorderBrush="Black" BorderThickness="1">
+                    <TextBlock x:Name="INP" Text="0" FontSize="20" VerticalAlignment="Bottom"
+                               MinHeight="30" FlowDirection="LeftToRight" TextAlignment="Right"
+                    />
+                </Border>
+            </ScrollViewer>
+            <Grid x:Name="BUTTONS">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="40"/>
@@ -59,6 +70,7 @@
                 <Button x:Name="OP_PAR" Grid.Column="0" Grid.Row="0" Style="{StaticResource Btn_operators}">(</Button>
                 <Button x:Name="CL_PAR" Grid.Column="1" Grid.Row="0" Style="{StaticResource Btn_operators}">)</Button>
                 <Button x:Name="CLEAR" Grid.Column="2" Grid.Row="0"  Style="{StaticResource Btn_operators}">C</Button>
+                <!--<Button x:Name="BACK" Grid.Row="0" Grid.Column="2"  Style="{StaticResource Btn_operators}">&lt;-</Button>-->
                 <Button x:Name="SIGN"  Grid.Column="3" Grid.Row="0"  Style="{StaticResource Btn_toggled_ops}">+-</Button>
 
                 <Button x:Name="SEVEN" Grid.Column="0" Grid.Row="1"  Style="{StaticResource Btn_digits}">7</Button>
@@ -77,6 +89,7 @@
                 <Button x:Name="MINUS" Grid.Row="3" Grid.Column="3"  Style="{StaticResource Btn_toggled_ops}">-</Button>
 
                 <Button x:Name="BACK" Grid.Row="4" Grid.Column="0"  Style="{StaticResource Btn_operators}">&lt;-</Button>
+                <!--<Button x:Name="CLEAR" Grid.Column="0" Grid.Row="4"  Style="{StaticResource Btn_operators}">C</Button>-->
                 <Button x:Name="ZERO" Grid.Row="4" Grid.Column="1"  Style="{StaticResource Btn_digits}">0</Button>
                 <Button x:Name="COMMA" Grid.Row="4" Grid.Column="2"  Style="{StaticResource Btn_digits}">,</Button>
                 <Button x:Name="PLUS" Grid.Row="4" Grid.Column="3"  Style="{StaticResource Btn_toggled_ops}">+</Button>

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-
+using ARCalc.Exceptions;
 namespace ARCalc.Structures
 {
     public class LinkedStack<T> : ICollection<T>, IEnumerable<T>, IEnumerable
@@ -25,7 +25,7 @@ namespace ARCalc.Structures
         public void Push(T item)
         {
             if (_count == Int32.MaxValue)
-                throw new InvalidOperationException("Cannot add new item. Maximum capacity (max value of Int32) is exceeded.");
+                throw new MaximumCapacityException("Cannot add new item. Maximum capacity (max value of Int32) is exceeded.");
             _count += 1;
             ElementType<T> node = new ElementType<T>();
             node.Element = item;

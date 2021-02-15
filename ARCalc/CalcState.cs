@@ -6,12 +6,11 @@ namespace ARCalc
 {
     public enum CalcState
     {
-        ZERO = 0,
-        NUM_TYPED = 1,
-        DOT_PUSHED = 2,
-        OP_PUSHED = 3,
-        PAREN_CLOSED = 4,
-        GOT_RESULT = 5,
-        ERROR = 6
+        ZERO = 0, /* operand is not typed yet. (ZERO-operand) */
+        NUM_TYPED = 1, /* digit is typed. */
+        DOT_PUSHED = 2, /* '.' symbol typed */
+        PAREN_CLOSED = 4, /* ')' typed */
+        GOT_RESULT = 5, /* '=' typed */
+        ERROR = 6 /* illegal state */
     }
 }

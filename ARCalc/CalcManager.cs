@@ -5,7 +5,7 @@ using System.Text;
 using ARCalc.Computors;
 using ARCalc.Structures;
 using ARCalc.Entities;
-
+using ARCalc.Exceptions;
 namespace ARCalc
 {
     public class CalcManager
@@ -48,19 +48,19 @@ namespace ARCalc
                         break;
                     }
                     /* first zero of operand. */
-                case ButtonCode.ZERO when (_curState == CalcState.ZERO || _curState == CalcState.OP_PUSHED):
+                case ButtonCode.ZERO when (_curState == CalcState.ZERO):
                     {
                         break;
                     }
                     /* first non-zero digit of operand */
-                case ButtonCode lc when lc >= ButtonCode.ZERO && lc <= ButtonCode.NINE && (_curState == CalcState.ZERO || _curState == CalcState.OP_PUSHED):
+                case ButtonCode lc when lc >= ButtonCode.ZERO && lc <= ButtonCode.NINE && (_curState == CalcState.ZERO):
                     {
                         _curState = CalcState.NUM_TYPED;
                         _main.INP.Text = "";
                         _main.INP.Text += input;
                         break;
                     }
-                /* try to type first digit after ')' parenthesis. Ignore that because we need an operator. */
+                /* try to type first digit after ')' parenthesis. Ignore this because we need operator. */
                 case ButtonCode lc when lc >= ButtonCode.ZERO && (lc <= ButtonCode.NINE || lc == ButtonCode.SPACE || lc == ButtonCode.COMMA) && _curState == CalcState.PAREN_CLOSED:
                     {
                         break;
@@ -78,8 +78,8 @@ namespace ARCalc
                         _main.INP.Text += ".";
                         break;
                     }
-                    /* open parenthesis '(' before operator */
-                case ButtonCode.OP_PAR when _curState == CalcState.OP_PUSHED:
+                    /* open parenthesis '(' after operator */
+                case ButtonCode.OP_PAR when _curState == CalcState.ZERO:
                     {
                         try
                         {
@@ -90,7 +90,7 @@ namespace ARCalc
                             _parenths.Push(new CharPosition('(', _main.EXPR.Text.Length - 1));
                         }
                         /* Set error message and style for EXPR TextBlock */
-                        catch (InvalidOperationException)
+                        catch (MaximumCapacityException)
                         {
                             _main.EXPR.Text = "Error: Exceeded the maximum count of elements (operators and operands).";
                             _curState = CalcState.ERROR;
@@ -107,12 +107,14 @@ namespace ARCalc
                         try
                         {
                             _main.EXPR.Text += " * ( ";
+                            _main.INP.Text = "0";
                             _tokens.Add("*");
                             _tokens.Add("(");
                             _curState = CalcState.ZERO;
+                            _parenths.Push(new CharPosition('(', _main.EXPR.Text.Length - 1));
                             _toks += 2;
                         }
-                        catch (InvalidOperationException)
+                        catch (MaximumCapacityException)
                         {
                             _main.EXPR.Text = "Error: Exceeded the maximum count of elements (operators and operands).";
                             _curState = CalcState.ERROR;
@@ -122,27 +124,6 @@ namespace ARCalc
                             }
                         }
                         break; 
-                    }
-                    /* open parenthesis in the begining of input. */
-                case ButtonCode.OP_PAR when _curState == CalcState.ZERO:
-                    {
-                        try
-                        {
-                            _main.EXPR.Text += "( ";
-                            _parenths.Push(new CharPosition('(', _main.EXPR.Text.Length - 1));
-                            _tokens.Add("(");
-                            _toks += 1;
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            _main.EXPR.Text = "Error: Exceeded the maximum count of elements (operators and operands).";
-                            _curState = CalcState.ERROR;
-                            if (_main.Resources["TextBlock_Err"] is System.Windows.Style style)
-                            {
-                                _main.EXPR.Style = style;
-                            }
-                        }
-                        break;
                     }
                 /* open parenthesis '(' after operand */
                 case ButtonCode.OP_PAR:
@@ -158,7 +139,7 @@ namespace ARCalc
                             _main.INP.Text = "0";
                             _parenths.Push(new CharPosition('(', _main.EXPR.Text.Length - 1));
                         }
-                        catch (InvalidOperationException)
+                        catch (MaximumCapacityException)
                         {
                             _main.EXPR.Text = "Error: Exceeded the maximum count of elements (operators and operands).";
                             _curState = CalcState.ERROR;
@@ -169,20 +150,35 @@ namespace ARCalc
                         }
                         break;
                     }
+                    /* second ')' right after ')' */
+                case ButtonCode.CL_PAR when _curState == CalcState.PAREN_CLOSED:
+                    {
+                        if (!UnbalancedParenthesis())
+                        {
+                            try
+                            {
+                                _main.EXPR.Text += " ) ";
+                                _tokens.Add(")");
+                                _main.INP.Text = "0";
+                                _parenths.Pop();
+                                _toks += 1;
+                            }
+                            catch (MaximumCapacityException)
+                            {
+                                _main.EXPR.Text = "Error: Exceeded the maximum count of elements (operators and operands).";
+                                _curState = CalcState.ERROR;
+                                if (_main.Resources["TextBlock_Err"] is System.Windows.Style style)
+                                {
+                                    _main.EXPR.Style = style;
+                                }
+                            }
+                        }
+                        break;
+                    }
                     /* close parenthesis ')' */
                 case ButtonCode.CL_PAR:
                     {
-                        if (_parenths.IsEmpty()) /* where are no matched '(' symbols */
-                        {
-                            _main.EXPR.Text = "Error: Attempting to create unbalanced (unmatched) parenthesis.";
-                            _curState = CalcState.ERROR;
-                            if (_main.Resources["TextBlock_Err"] is System.Windows.Style style)
-                            {
-                                _main.EXPR.Style = style;
-                            }
-                        }
-                        else
-                        {
+                        if (!UnbalancedParenthesis()) { /* balanced (matched) ')' */
                             try
                             {
                                 _main.EXPR.Text += _main.INP.Text + " ) ";
@@ -193,7 +189,7 @@ namespace ARCalc
                                 _parenths.Pop();
                                 _toks += 2;
                             }
-                            catch (InvalidOperationException)
+                            catch (MaximumCapacityException)
                             {
                                 _main.EXPR.Text = "Error: Exceeded the maximum count of elements (operators and operands).";
                                 _curState = CalcState.ERROR;
@@ -221,7 +217,7 @@ namespace ARCalc
                                 _toks += 1;
                                 _main.EXPR.Text += " " + input;
                                 _main.INP.Text = "0";
-                                _curState = CalcState.OP_PUSHED;
+                                _curState = CalcState.ZERO;
                                 break;
                             }
                             catch (InvalidOperationException)
@@ -235,7 +231,7 @@ namespace ARCalc
                                 break;
                             }
                         }
-                        _curState = CalcState.OP_PUSHED;
+                        _curState = CalcState.ZERO;
                         try
                         {
                             _tokens.Add(_main.INP.Text);/* Add operand with operator */
@@ -258,6 +254,7 @@ namespace ARCalc
                     /* '=' symbol */
                 case ButtonCode.EQ:
                     {
+                        /* 12. => 12.0, 0. => 0.0 */
                         if (_curState == CalcState.DOT_PUSHED && _main.INP.Text[^1] == '.')
                         {
                             _main.INP.Text += "0";
@@ -266,9 +263,13 @@ namespace ARCalc
                         {
                             if (!_parenths.IsEmpty()) /* there are unmatched '(' symbols */
                                 throw new ArgumentNullException();
-                            _tokens.Add(_main.INP.Text);/* Add last operand */
-                            _toks += 1;
+                            if (_curState != CalcState.PAREN_CLOSED)
+                            {
+                                _tokens.Add(_main.INP.Text);/* Add last operand */
+                                _toks += 1;
+                            }
                             LinkedStack<string> formula = _parser.GetInput(_tokens);
+                            string str_f = formula.ToString();
                             _main.INP.Text = _eval.CanParse(formula);
                             _main.EXPR.Text = "";
 
@@ -277,6 +278,7 @@ namespace ARCalc
                             _tokens.Add(_main.INP.Text);
                             _isPositive = (_main.INP.Text[0] != '-');
                             _toks = 1;
+                            _curState = CalcState.ZERO;
                         }
                         catch(InvalidOperationException e) when (e.Message == "Eval") {/* TODO: Replace to certain Exception */
                             _main.INP.Text = new string(_main.EXPR.Text + _main.INP.Text);
@@ -287,7 +289,7 @@ namespace ARCalc
                                 _main.EXPR.Style = style;
                             }
                         }
-                        catch (InvalidOperationException)
+                        catch (MaximumCapacityException)
                         {
                             _main.EXPR.Text = "Error: Exceeded the maximum count of elements (operators and operands).";
                             _curState = CalcState.ERROR;
@@ -322,6 +324,11 @@ namespace ARCalc
                         {
                             _main.EXPR.Style = style;
                         }
+                        break;
+                    }
+                    /* this button is blocked as other numeric buttons (cause we need operator) */
+                case ButtonCode.ARROW when _curState == CalcState.PAREN_CLOSED:
+                    {
                         break;
                     }
                 case ButtonCode.ARROW:
@@ -407,6 +414,21 @@ namespace ARCalc
                 "B" => ButtonCode.ARROW,
                 _ => ButtonCode.ERR
             };
+        }
+
+        private bool UnbalancedParenthesis()
+        {
+            if (_parenths.IsEmpty()) /* where are no matched '(' symbols */
+            {
+                _main.EXPR.Text = "Error: Attempting to create unbalanced (unmatched) parenthesis.";
+                _curState = CalcState.ERROR;
+                if (_main.Resources["TextBlock_Err"] is System.Windows.Style style)
+                {
+                    _main.EXPR.Style = style;
+                }
+                return true;
+            }
+            return false;
         }
     }
 }
