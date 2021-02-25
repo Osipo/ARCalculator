@@ -35,6 +35,8 @@ namespace ARCalc
         EQ = 22,
         SPACE = 23,
         BACK = 24,
-        ERR = 25
+        FACT = 25,
+        FIBO = 26,
+        ERR = 27
     }
 }

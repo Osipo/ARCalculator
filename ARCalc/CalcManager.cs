@@ -130,6 +130,11 @@ namespace ARCalc
                     {
                         try
                         {
+                            /* CHECK THAT number with dot has zero-end: 24. => 24.0 */
+                            if (_curState == CalcState.DOT_PUSHED && _main.INP.Text[^1] == '.')
+                            {
+                                _main.INP.Text += "0";
+                            }
                             _main.EXPR.Text += _main.INP.Text + " * ( "; /* by default: multiplication is preceeded */
                             _curState = CalcState.ZERO; /* '(' is pseudo operator */
                             _tokens.Add(_main.INP.Text);
@@ -181,6 +186,11 @@ namespace ARCalc
                         if (!UnbalancedParenthesis()) { /* balanced (matched) ')' */
                             try
                             {
+                                /* CHECK THAT number with dot-end has zero-end: 24. => 24.0 */
+                                if (_curState == CalcState.DOT_PUSHED && _main.INP.Text[^1] == '.')
+                                {
+                                    _main.INP.Text += "0";
+                                }
                                 _main.EXPR.Text += _main.INP.Text + " ) ";
                                 _tokens.Add(_main.INP.Text);
                                 _tokens.Add(")");
@@ -205,10 +215,12 @@ namespace ARCalc
                     /* operator [NOT PARENTHESES '(' and ')']*/
                 case ButtonCode lc when lc >= ButtonCode.OP_BEGIN && lc <= ButtonCode.OP_END:
                     {
+                        /* CHECK THAT number with dot has zero-end: 24. => 24.0 */
                         if(_curState == CalcState.DOT_PUSHED && _main.INP.Text[^1] == '.')
                         {
                             _main.INP.Text += "0";
                         }
+                        /* previous symbol was ')' */
                         else if(_curState == CalcState.PAREN_CLOSED)
                         {
                             try
@@ -375,6 +387,50 @@ namespace ARCalc
                         
                         break;
                     }
+                    /* Factorial computing. Only Natural numbers are allowed */
+                case ButtonCode.FACT when _curState == CalcState.ZERO || _curState == CalcState.NUM_TYPED || _curState == CalcState.DOT_PUSHED:
+                    {
+                        try
+                        {
+                            _main.INP.Text = NumericFunctions.Factofial(_main.INP.Text).ToString();
+                        }
+                        catch(IllegalNumberException e)
+                        {
+                            _curState = CalcState.ERROR;
+                            _main.EXPR.Text = e.Message;
+                            if (_main.Resources["TextBlock_Err"] is System.Windows.Style style)
+                            {
+                                _main.EXPR.Style = style;
+                            }
+                            break;
+                        }
+                        
+                        _curState = CalcState.NUM_TYPED;
+                        break;
+                    }
+                    /* Get i-th number of Fibbonachi. I must be a Natural number! */
+                case ButtonCode.FIBO when _curState == CalcState.ZERO || _curState == CalcState.NUM_TYPED || _curState == CalcState.DOT_PUSHED:
+                    {
+                        try
+                        {
+                            _main.INP.Text = NumericFunctions.GetFibboNumber(_main.INP.Text).ToString();
+                        }
+                        catch (IllegalNumberException e)
+                        {
+                            _curState = CalcState.ERROR;
+                            _main.EXPR.Text = e.Message;
+                            if (_main.Resources["TextBlock_Err"] is System.Windows.Style style)
+                            {
+                                _main.EXPR.Style = style;
+                            }
+                            break;
+                        }
+                        if (_main.INP.Text != "0")
+                            _curState = CalcState.NUM_TYPED;
+                        else
+                            _curState = CalcState.ZERO;
+                        break;
+                    }
             }
         }
 
@@ -412,6 +468,8 @@ namespace ARCalc
                 "=" => ButtonCode.EQ,
                 " " => ButtonCode.SPACE,
                 "B" => ButtonCode.ARROW,
+                "n!" => ButtonCode.FACT,
+                "Fib_i" => ButtonCode.FIBO,
                 _ => ButtonCode.ERR
             };
         }

@@ -96,6 +96,8 @@
 
                 <Button x:Name="EQ" Grid.Row="3" Grid.RowSpan="2" Grid.Column="4"  Style="{StaticResource Btn_EQ}">=</Button>
 
+                <Button x:Name="FACT" Grid.Row="2" Grid.Column="4" Style="{StaticResource Btn_operators}">n!</Button>
+                <Button x:Name="FIBO" Grid.Row="1" Grid.Column="4" Style="{StaticResource Btn_operators}">Fib_i</Button>
 
             </Grid>
         </StackPanel>
